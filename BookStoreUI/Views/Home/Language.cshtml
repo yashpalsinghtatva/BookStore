@@ -1,0 +1,249 @@
+﻿@{
+    ViewData["Title"] = "Language";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h1>Index</h1>*@
+<p>
+    <button id="btnOpenAddLanguageModal" class="btn btn-primary">Add New Language</button>
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    Language Id
+                </th>*@
+            <th>
+                Language Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dvBody">
+    </tbody>
+</table>
+
+<div id="LanguageModel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Language Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" id="hdnLanguageId" />
+                        <label for="lblLanguageName" class="control-label col-md-5">Language Name</label>
+                        <div class="col-md-7">
+                            <input type="text" id="txtLanguageName" class="form-control" required />
+                            <span id="spnLanguageName" class="form-label text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <input type="button" id="btnAddLanguage" value="Add" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let accessToken = null;
+    $(document).ready(function () {
+        accessToken = localStorage.getItem("accessToken");
+        getAllLanguages();
+        $("#btnOpenAddLanguageModal").click(function () {
+            $("#btnAddLanguage").val("Add");
+            $("#LanguageModel").modal('show');
+            clearModal();
+        });
+
+        $("#btnAddLanguage").click(function () {
+            if (!ValidateForm()) {
+                return false;
+            }
+            var Language = {
+                "LanguageName": $("#txtLanguageName").val()
+            };
+            let methodType = "";
+            let url = "";
+            let LanguageId = $("#hdnLanguageId").val();
+            if (LanguageId != null && LanguageId != '') {
+                methodType = "PUT";
+                url = ServiceUrl + "api/Language/" + LanguageId;
+
+            } else {
+                methodType = "POST";
+                url = ServiceUrl + "api/Language";
+
+            }
+            var LanguageJson = JSON.stringify(Language);
+            $.ajax({
+                url: url,
+                type: methodType,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: LanguageJson,
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                success: function (data) {
+                    try {
+                        getAllLanguages();
+                        $("#LanguageModel").modal('hide');
+                        clearModal();
+                        alertify.success("Language " + (methodType == "POST" ? "Added" : "Updated"));
+                    } catch (e) {
+                        alertify.error("Error after adding Language");
+                        //alert("Error after adding Language" + e.message);
+                    }
+                },
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                error: function (request, status, errorThrown) {
+                    if (request.statusCode == 401) {
+                        RedirectToLogin();
+                    }
+                    alertify.error("Error in adding Language");
+                    //alert("Error in adding Language" + e.message);
+                    console.log(e);
+                },
+            });
+        })
+    });
+    function getAllLanguages() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Language",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToLanguageTable(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    alertify.error("Error in Storing Languages In table");
+                    //alert("Error in Storing Languages In table" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting all Languages");
+                //alert("Error in getting all Languages");
+            }
+        });
+    }
+    function addRecordToLanguageTable(record) {
+        let languageRecord = "";
+        languageRecord += "<tr>";
+        //languageRecord += "<td>" + record.languageId + "</td>";
+        languageRecord += "<td>" + record.languageName + "</td>";
+        languageRecord += "<td> <a href='#' onClick='OpenEditLanguageModal(" + record.languageId + ")' >Edit</a> | <a href='#' onClick='DeleteLanguage(" + record.languageId + ")' >Delete</a> </td>";
+        languageRecord += "</tr>";
+        return languageRecord;
+    }
+    function OpenEditLanguageModal(languageId) {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Language/" + languageId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#hdnLanguageId").val(data.languageId);
+                    $("#txtLanguageName").val(data.languageName);
+                    $("#btnAddLanguage").val("Edit");
+                    $("#LanguageModel").modal('show');
+                } catch (e) {
+                    alertify.error("Error in Getting Language Details");
+                    //alert("Error in Getting Language Details" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                //alert("Error in getting current Language");
+                alertify.error("Error in getting current Language");
+            }
+        });
+    }
+    function DeleteLanguage(languageId) {
+        $.ajax({
+            type: "DELETE",
+            url: ServiceUrl + "api/Language/" + languageId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    getAllLanguages();
+                    alertify.success("Language Deleted");
+                } catch (e) {
+                    alertify.error("Error After Deleting Language");
+                    //alert("Error After Deleting Language" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in Deleting Language");
+                //alert("Error in Deleting Language");
+            }
+        });
+    }
+    function clearModal() {
+        $("#hdnLanguageId").val("");
+        $("#txtLanguageName").val("");
+        $("#spnLanguageName").text("").hide();
+
+    }
+    function ValidateForm() {
+        let languageName = $("#txtLanguageName").val();
+        if (languageName === null || languageName.trim() === "") {
+            $("#spnLanguageName").text("Language is required.").show();
+            return false;
+        }
+        else {
+            $("#spnLanguageName").hide();
+            return true;
+        }
+    }
+</script>

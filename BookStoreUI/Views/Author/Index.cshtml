@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h1>Index</h1>*@
+<p>
+    <button id="btnOpenAddAuthorModal" class="btn btn-primary">Add New Author</button>
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    Author Id
+                </th>*@
+            <th>
+                Author Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dvBody">
+    </tbody>
+</table>
+
+<div id="AuthorModel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="student-form" action="" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Author Details</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <input type="hidden" id="hdnAuthorId"/>
+                            <label for="lblAuthorName" class="control-label col-md-5">Author Name</label>
+                            <div class="col-md-7">
+                                <input type="text" id="txtAuthorName" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <input type="button" id="btnAddAuthor" value="Add" class="btn btn-success" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/js/Global.js"></script>
+<script>
+    $(document).ready(function () {
+
+        getAllAuthors();
+        $("#btnOpenAddAuthorModal").click(function () {
+            $("#btnAddAuthor").val("Add");
+            $("#AuthorModel").modal('show');
+        });
+
+        $("#btnAddAuthor").click(function () {
+            var Author = {
+                "AuthorName": $("#txtAuthorName").val()
+            };
+            let methodType = "";
+            let url = "";
+            let AuthorId = $("#hdnAuthorId").val();
+            if (AuthorId != null && AuthorId != '') {
+                methodType = "PUT";
+                url = ServiceUrl + "api/Author/" + AuthorId;
+
+            } else {
+                methodType = "POST";
+                url = ServiceUrl + "api/Author";
+
+            }
+            var AuthorJson = JSON.stringify(Author);
+            $.ajax({
+                url: url,
+                type: methodType,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: AuthorJson,
+                success: function (data) {
+                    try {
+                        getAllAuthors();
+                        $("#AuthorModel").modal('hide');
+                        clearModal();
+                    } catch (e) {
+                        alert("Error after adding Author" + e.message);
+                    }
+                },
+                error: function (e) {
+                    alert("Error in adding Author" + e.message);
+                    console.log(e);
+                },
+
+            });
+        })
+    });
+    function getAllAuthors() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Author",
+            data: "{}",
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToAuthorTable(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    alert("Error in Storing Authors In table" + e.message);
+
+                }
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in getting all Authors");
+            }
+
+        });
+
+    }
+    function addRecordToAuthorTable(record) {
+        let authorRecord = "";
+        authorRecord += "<tr>";
+        //authorRecord += "<td>" + record.authorId + "</td>";
+        authorRecord += "<td>" + record.authorName + "</td>";
+        authorRecord += "<td> <a href='#' onClick='OpenEditAuthorModal(" + record.authorId + ")' >Edit</a> | <a href='#' onClick='DeleteAuthor(" + record.authorId + ")' >Delete</a> </td>";
+        authorRecord += "</tr>";
+
+        return authorRecord;
+
+    }
+    function OpenEditAuthorModal(authorId) {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Author/" + authorId,
+            data: "{}",
+            success: function (data) {
+                try {
+                    $("#hdnAuthorId").val(data.authorId);
+                    $("#txtAuthorName").val(data.authorName);
+                    $("#btnAddAuthor").val("Edit");
+                    $("#AuthorModel").modal('show');
+                } catch (e) {
+                    alert("Error in Getting Author Details" + e.message);
+
+                }
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in getting current Author");
+            }
+
+        });
+
+    }
+
+    function DeleteAuthor(authorId) {
+        $.ajax({
+            type: "DELETE",
+            url: ServiceUrl + "api/Author/" + authorId,
+            data: "{}",
+            success: function (data) {
+                try {
+                    getAllAuthors();
+                } catch (e) {
+                    alert("Error After Deleting Author" + e.message);
+
+                }
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in Deleting Author");
+            }
+
+        });
+
+    }
+
+
+    function clearModal() {
+        $("#hdnAuthorId").val("");
+        $("#txtAuthorName").val("");
+
+    }
+</script>

@@ -1,0 +1,30 @@
+﻿@model BookStoreUI.Models.Author
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Author</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+            <div class="form-group">
+                <label id="lblAuthorName" class="control-label"></label>
+                <input type="text" id="txtAuthorName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="button" value="Add" id="btnAddAuthor" class="btn btn-primary" />
+            </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

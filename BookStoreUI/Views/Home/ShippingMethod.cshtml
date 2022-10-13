@@ -1,0 +1,250 @@
+﻿@{
+    ViewData["Title"] = "Shipping Method";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h1>Index</h1>*@
+<p>
+    <button id="btnOpenAddShippingMethodModal" class="btn btn-primary">Add New Shipping Method</button>
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    ShippingMethod Id
+                </th>*@
+            <th>
+                Shipping Method Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dvBody">
+    </tbody>
+</table>
+
+<div id="ShippingMethodModel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ShippingMethod Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" id="hdnShippingMethodId" />
+                        <label for="lblShippingMethodName" class="control-label col-md-5">ShippingMethod Name</label>
+                        <div class="col-md-7">
+                            <input type="text" id="txtShippingMethodName" class="form-control" required />
+                            <span id="spnShippingMethodName" class="form-label text-danger" style="display:none;"></span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <input type="button" id="btnAddShippingMethod" value="Add" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let accessToken = null;
+    $(document).ready(function () {
+        accessToken = localStorage.getItem("accessToken");
+        getAllShippingMethods();
+        $("#btnOpenAddShippingMethodModal").click(function () {
+            $("#btnAddShippingMethod").val("Add");
+            $("#ShippingMethodModel").modal('show');
+            clearModal();
+
+        });
+
+        $("#btnAddShippingMethod").click(function () {
+            if (!ValidateForm()) {
+                return false;
+            }
+            var ShippingMethod = {
+                "ShippingMethodName": $("#txtShippingMethodName").val()
+            };
+            let methodType = "";
+            let url = "";
+            let ShippingMethodId = $("#hdnShippingMethodId").val();
+            if (ShippingMethodId != null && ShippingMethodId != '') {
+                methodType = "PUT";
+                url = ServiceUrl + "api/ShippingMethod/" + ShippingMethodId;
+
+            } else {
+                methodType = "POST";
+                url = ServiceUrl + "api/ShippingMethod";
+
+            }
+            var ShippingMethodJson = JSON.stringify(ShippingMethod);
+            $.ajax({
+                url: url,
+                type: methodType,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: ShippingMethodJson,
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                success: function (data) {
+                    try {
+                        getAllShippingMethods();
+                        $("#ShippingMethodModel").modal('hide');
+                        clearModal();
+                        alertify.success("ShippingMethod " + (methodType == "POST" ? "Added" : "Updated"));
+                    } catch (e) {
+                        alertify.error("Error after adding ShippingMethod");
+                        //alert("Error after adding ShippingMethod" + e.message);
+                    }
+                },
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                error: function (request, status, errorThrown) {
+                    if (request.statusCode == 401) {
+                        RedirectToLogin();
+                    }
+                    alertify.error("Error in adding ShippingMethod");
+                    //alert("Error in adding ShippingMethod" + e.message);
+                    //console.log(e);
+                },
+            });
+        })
+    });
+    function getAllShippingMethods() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/ShippingMethod",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToShippingMethodTable(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    alertify.error("Error in Storing ShippingMethods In table");
+                    //alert("Error in Storing ShippingMethods In table" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting all ShippingMethods");
+                //alert("Error in getting all ShippingMethods");
+            }
+        });
+    }
+    function addRecordToShippingMethodTable(record) {
+        let shippingMethodRecord = "";
+        shippingMethodRecord += "<tr>";
+        //shippingMethodRecord += "<td>" + record.shippingMethodId + "</td>";
+        shippingMethodRecord += "<td>" + record.shippingMethodName + "</td>";
+        shippingMethodRecord += "<td> <a href='#' onClick='OpenEditShippingMethodModal(" + record.shippingMethodId + ")' >Edit</a> | <a href='#' onClick='DeleteShippingMethod(" + record.shippingMethodId + ")' >Delete</a> </td>";
+        shippingMethodRecord += "</tr>";
+        return shippingMethodRecord;
+    }
+    function OpenEditShippingMethodModal(shippingMethodId) {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/ShippingMethod/" + shippingMethodId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#hdnShippingMethodId").val(data.shippingMethodId);
+                    $("#txtShippingMethodName").val(data.shippingMethodName);
+                    $("#btnAddShippingMethod").val("Edit");
+                    $("#ShippingMethodModel").modal('show');
+                } catch (e) {
+                    alertify.error("Error in Getting ShippingMethod Details");
+                    //alert("Error in Getting ShippingMethod Details" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                //alert("Error in getting current ShippingMethod");
+                alertify.error("Error in getting current ShippingMethod");
+            }
+        });
+    }
+    function DeleteShippingMethod(shippingMethodId) {
+        $.ajax({
+            type: "DELETE",
+            url: ServiceUrl + "api/ShippingMethod/" + shippingMethodId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    getAllShippingMethods();
+                    alertify.success("ShippingMethod Deleted");
+                } catch (e) {
+                    alertify.error("Error After Deleting ShippingMethod");
+                    //alert("Error After Deleting ShippingMethod" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in Deleting ShippingMethod");
+                //alert("Error in Deleting ShippingMethod");
+            }
+        });
+    }
+    function clearModal() {
+        $("#hdnShippingMethodId").val("");
+        $("#txtShippingMethodName").val("");
+        $("#spnShippingMethodName").text("").hide();
+    }
+    function ValidateForm() {
+        let ShippingMethodName = $("#txtShippingMethodName").val();
+        if (ShippingMethodName === null || ShippingMethodName.trim() === "") {
+            $("#spnShippingMethodName").text("Shipping Method is required.").show();
+            return false;
+        }
+        else {
+            $("#spnShippingMethodName").hide();
+            return true;
+        }
+    }
+</script>

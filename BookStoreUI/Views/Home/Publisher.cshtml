@@ -1,0 +1,248 @@
+﻿@{
+    ViewData["Title"] = "Publisher";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h1>Index</h1>*@
+<p>
+    <button id="btnOpenAddPublisherModal" class="btn btn-primary">Add New Publisher</button>
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    Publisher Id
+                </th>*@
+            <th>
+                Publisher Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dvBody">
+    </tbody>
+</table>
+
+<div id="PublisherModel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Publisher Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" id="hdnPublisherId" />
+                        <label for="lblPublisherName" class="control-label col-md-5">Publisher Name</label>
+                        <div class="col-md-7">
+                            <input type="text" id="txtPublisherName" class="form-control" />
+                            <span id="spnPublisherName" class="form-label text-danger" style="display:none;"></span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <input type="button" id="btnAddPublisher" value="Add" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let accessToken = null;
+    $(document).ready(function () {
+        accessToken = localStorage.getItem("accessToken");
+        getAllPublishers();
+        $("#btnOpenAddPublisherModal").click(function () {
+            $("#btnAddPublisher").val("Add");
+            $("#PublisherModel").modal('show');
+            clearModal();
+        });
+
+        $("#btnAddPublisher").click(function () {
+            if (!ValidateForm()) {
+                return false;
+            }
+            var Publisher = {
+                "PublisherName": $("#txtPublisherName").val()
+            };
+            let methodType = "";
+            let url = "";
+            let PublisherId = $("#hdnPublisherId").val();
+            if (PublisherId != null && PublisherId != '') {
+                methodType = "PUT";
+                url = ServiceUrl + "api/Publisher/" + PublisherId;
+
+            } else {
+                methodType = "POST";
+                url = ServiceUrl + "api/Publisher";
+
+            }
+            var PublisherJson = JSON.stringify(Publisher);
+            $.ajax({
+                url: url,
+                type: methodType,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: PublisherJson,
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                success: function (data) {
+                    try {
+                        getAllPublishers();
+                        $("#PublisherModel").modal('hide');
+                        clearModal();
+                    } catch (e) {
+                        alert("Error after adding Publisher" + e.message);
+                    }
+                },
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                error: function (e) {
+                    alert("Error in adding Publisher" + e.message);
+                    console.log(e);
+                },
+
+            });
+        })
+    });
+    function getAllPublishers() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Publisher",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToPublisherTable(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    alert("Error in Storing Publishers In table" + e.message);
+
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in getting all Publishers");
+            }
+
+        });
+
+    }
+    function addRecordToPublisherTable(record) {
+        let publisherRecord = "";
+        publisherRecord += "<tr>";
+        //publisherRecord += "<td>" + record.publisherId + "</td>";
+        publisherRecord += "<td>" + record.publisherName + "</td>";
+        publisherRecord += "<td> <a href='#' onClick='OpenEditPublisherModal(" + record.publisherId + ")' >Edit</a> | <a href='#' onClick='DeletePublisher(" + record.publisherId + ")' >Delete</a> </td>";
+        publisherRecord += "</tr>";
+
+        return publisherRecord;
+
+    }
+    function OpenEditPublisherModal(publisherId) {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Publisher/" + publisherId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#hdnPublisherId").val(data.publisherId);
+                    $("#txtPublisherName").val(data.publisherName);
+                    $("#btnAddPublisher").val("Edit");
+                    $("#PublisherModel").modal('show');
+                } catch (e) {
+                    alert("Error in Getting Publisher Details" + e.message);
+
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in getting current Publisher");
+            }
+
+        });
+
+    }
+
+    function DeletePublisher(publisherId) {
+        $.ajax({
+            type: "DELETE",
+            url: ServiceUrl + "api/Publisher/" + publisherId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    getAllPublishers();
+                } catch (e) {
+                    alert("Error After Deleting Publisher" + e.message);
+
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                alert("Error in Deleting Publisher");
+            }
+
+        });
+
+    }
+
+
+    function clearModal() {
+        $("#hdnPublisherId").val("");
+        $("#txtPublisherName").val("");
+        $("#spnPublisherName").text("").hide();
+
+    }
+    function ValidateForm() {
+        let publisherName = $("#txtPublisherName").val();
+        if (publisherName === null || publisherName.trim() === "") {
+            $("#spnPublisherName").text("Publisher Name is required.").show();
+            return false;
+        }
+        else {
+            $("#spnPublisherName").hide();
+            return true;
+        }
+    }
+</script>

@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Book";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/customStyle.css" rel="stylesheet" />
+<style>
+</style>
+<section class="section-products">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="header">
+                        <h2> Books</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="dvbooks">
+
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        getAllBooks();
+    });
+    function getAllBooks() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Book",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvbooks").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addBooktoDiv(data[i]);
+                    }
+                    $("#dvbooks").append(dvRecord);
+                } catch (e) {
+                    //alert("Error in Storing Authors In table" + e.message);
+                    alertify.error("Error in Storing Books In Card");
+                }
+            },
+            headers: {
+                //Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting all Authors");
+                //alert("Error in getting all Authors");
+            }
+
+        });
+
+    }
+    function addBooktoDiv(record) {
+        let currentBook = "";
+        currentBook = '<div class="col-md-6 col-lg-4 col-xl-3">';
+        currentBook += '<div id="product" class="single-product">';
+        currentBook += '<div class="part-1" style="background: url(\'' + ServiceUrl + record.bookImagePath + '\'); background-repeat: round;">';
+        //currentBook += '<ul>';
+        //currentBook += '<li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>';
+        //currentBook += '<li><a href="#"><i class="fas fa-heart"></i></a></li>';
+        //currentBook += '<li><a href="#"><i class="fas fa-plus"></i></a></li>';
+        //currentBook += '<li><a href="#"><i class="fas fa-expand"></i></a></li>';
+        //currentBook += '<ul>';
+        currentBook += '</div>';
+        currentBook += '<div class="part-2">';
+        currentBook += '<h3 class="product-title">' + record.bookTitle + '</h3>';
+        currentBook += '<h3 class="product-title">' + record.isbn + '</h3>';
+        //currentBook += '<h4 class="product-old-price">$' + record.bookDescription +'</h4>';
+        currentBook += '<h4 class="product-price">$' + record.bookPrice + '</h4>';
+        currentBook += '<div> <button class="btn btn-success" onClick="openProduct(' + record.bookId + ')" > Buy Now</button> </div>';
+        currentBook += '</div>';
+        currentBook += '</div>';
+        currentBook += '</div>';
+
+        return currentBook;
+
+    }
+    function openProduct(BookId) {
+        localStorage.setItem("BookId", BookId);
+        location.href = '/Home/Book';
+
+    }
+</script>

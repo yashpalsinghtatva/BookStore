@@ -1,0 +1,252 @@
+﻿@{
+    ViewData["Title"] = "Country";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h1>Index</h1>*@
+<p>
+    <button id="btnOpenAddCountryModal" class="btn btn-primary">Add New Country</button>
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    Country Id
+                </th>*@
+            <th>
+                Country Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="dvBody">
+    </tbody>
+</table>
+
+<div id="CountryModel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Country Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" id="hdnCountryId" />
+                        <label for="lblCountryName" class="control-label col-md-5">Country Name</label>
+                        <div class="col-md-7">
+                            <input type="text" id="txtCountryName" class="form-control" />
+                            <span id="spnCountryName" class="form-label text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <input type="button" id="btnAddCountry" value="Add" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let accessToken = null;
+    $(document).ready(function () {
+        accessToken = localStorage.getItem("accessToken");
+        getAllCountrys();
+        $("#btnOpenAddCountryModal").click(function () {
+            $("#btnAddCountry").val("Add");
+            $("#CountryModel").modal('show');
+            clearModal();
+
+        });
+
+        $("#btnAddCountry").click(function () {
+            if (!ValidateForm()) {
+                return false;
+            }
+            var Country = {
+                "CountryName": $("#txtCountryName").val()
+            };
+            let methodType = "";
+            let url = "";
+            let CountryId = $("#hdnCountryId").val();
+            if (CountryId != null && CountryId != '') {
+                methodType = "PUT";
+                url = ServiceUrl + "api/Country/" + CountryId;
+
+            } else {
+                methodType = "POST";
+                url = ServiceUrl + "api/Country";
+
+            }
+            var CountryJson = JSON.stringify(Country);
+            $.ajax({
+                url: url,
+                type: methodType,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: CountryJson,
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                success: function (data) {
+                    try {
+                        getAllCountrys();
+                        $("#CountryModel").modal('hide');
+                        clearModal();
+                        alertify.success("Country " + (methodType == "POST" ? "Added" : "Updated"));
+                    } catch (e) {
+                        alertify.error("Error after adding Country");
+                        //alert("Error after adding Country" + e.message);
+                    }
+                },
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                error: function (request, status, errorThrown) {
+                    if (request.statusCode == 401) {
+                        RedirectToLogin();
+                    }
+                    alertify.error("Error in adding Country");
+                    //alert("Error in adding Country" + e.message);
+                    console.log(e);
+                },
+            });
+        })
+    });
+    function getAllCountrys() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Country",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToCountryTable(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    alertify.error("Error in Storing Countrys In table");
+                    //alert("Error in Storing Countrys In table" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting all Countrys");
+                //alert("Error in getting all Countrys");
+            }
+        });
+    }
+    function addRecordToCountryTable(record) {
+        let countryRecord = "";
+        countryRecord += "<tr>";
+        //countryRecord += "<td>" + record.countryId + "</td>";
+        countryRecord += "<td>" + record.countryName + "</td>";
+        countryRecord += "<td> <a href='#' onClick='OpenEditCountryModal(" + record.countryId + ")' >Edit</a> | <a href='#' onClick='DeleteCountry(" + record.countryId + ")' >Delete</a> </td>";
+        countryRecord += "</tr>";
+        return countryRecord;
+    }
+    function OpenEditCountryModal(countryId) {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Country/" + countryId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#hdnCountryId").val(data.countryId);
+                    $("#txtCountryName").val(data.countryName);
+                    $("#btnAddCountry").val("Edit");
+                    $("#CountryModel").modal('show');
+                } catch (e) {
+                    alertify.error("Error in Getting Country Details");
+                    //alert("Error in Getting Country Details" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                //alert("Error in getting current Country");
+                alertify.error("Error in getting current Country");
+            }
+        });
+    }
+    function DeleteCountry(countryId) {
+        $.ajax({
+            type: "DELETE",
+            url: ServiceUrl + "api/Country/" + countryId,
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    getAllCountrys();
+                    alertify.success("Country Deleted");
+                } catch (e) {
+                    alertify.error("Error After Deleting Country");
+                    //alert("Error After Deleting Country" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in Deleting Country");
+                //alert("Error in Deleting Country");
+            }
+        });
+    }
+    function clearModal() {
+        $("#hdnCountryId").val("");
+        $("#txtCountryName").val("");
+        $("#spnCountryName").text("").hide();
+        
+
+    }
+    function ValidateForm() {
+        let countryName = $("#txtCountryName").val();
+        if (countryName === null || countryName.trim() === "") {
+            $("#spnCountryName").text("Country Name is required.");
+            $("#spnCountryName").show();
+            return false;
+        }
+        else {
+            $("#spnCountryName").hide();
+            return true;
+        }
+    }
+</script>
