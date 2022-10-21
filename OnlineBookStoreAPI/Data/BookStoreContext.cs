@@ -22,8 +22,9 @@ namespace OnlineBookStoreAPI.Data
         public DbSet<Country> Countries{ get; set; }
         public DbSet<Address> Addresses{ get; set; }
         public DbSet<ShippingMethod> ShippingMethods{ get; set; }
-        public DbSet<OrderStatus> OrderStatuses{ get; set; }
         public DbSet<Order> Orders{ get; set; }
         public DbSet<OrderBook> OrderBooks{ get; set; }
+        public DbSet<Cart> Carts{ get; set; }
+        public DbSet<CartItem> CartItems{ get; set; }
     }
 }

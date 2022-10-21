@@ -99,6 +99,14 @@
 <script src="~/js/alertify.min.js"></script>
 <script src="~/js/Global.js"></script>
 <script>
+    function showLoader() {
+        $("#loader-container").show();
+    }
+    function hideLoader() {
+        $("#loader-container").hide();
+    }
+</script>
+<script>
     $(document).ready(function () {
         $("#btnAddUser").click(function () {
             var User = {
@@ -116,10 +124,10 @@
                 contentType: "application/json; charset=utf-8",
                 data: UserJson,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {

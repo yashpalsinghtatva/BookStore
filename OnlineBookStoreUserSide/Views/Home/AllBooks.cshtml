@@ -4,16 +4,34 @@
 }
 <link href="~/css/customStyle.css" rel="stylesheet" />
 <style>
+    .searchbox-container {
+        width: 100%;
+        display: flex;
+        margin-bottom: 20px;
+    }
+
+    .searchbox {
+        border-style: double;
+        border-color: darkgoldenrod;
+        margin-left: 10px;
+    }
 </style>
 <section class="section-products">
     <div class="container">
-        <div class="row justify-content-center text-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="header">
-                        <h2> Books</h2>
-                </div>
-            </div>
+        <div class="searchbox-container">
+            <input type="text" id="txtSearchBook" placeholder="Book Name" class="searchbox form-control" style="width: 40%;" />
+            <select id="ddlBookLanguage" class="searchbox form-control" style="width: 40%;"></select>
+            <button id="btnBookSearch" class="searchbox btn-info" style="width: 10%;">Search</button>
+            @*<input type="text" id="txtSearchBook" class="searchbox" />*@
         </div>
+
+        @*<div class="row justify-content-center text-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="header">
+                        <h2> Books</h2>
+                    </div>
+                </div>
+            </div>*@
         <div class="row" id="dvbooks">
 
         </div>
@@ -21,27 +39,40 @@
 </section>
 <script>
     $(document).ready(function () {
-        getAllBooks();
+        getAllBooks(null, 0, true);
+        $("#btnBookSearch").click(function () {
+            let bookName = $("#txtSearchBook").val();
+            let languageId = parseInt($('#ddlBookLanguage').val());
+            getAllBooks(bookName, languageId, false);
+        });
     });
-    function getAllBooks() {
+    function getAllBooks(bookName, languageId, reloadLanguage = false) {
         $.ajax({
             type: "GET",
-            url: ServiceUrl + "api/Book",
-            data: "{}",
+            url: ServiceUrl + "api/Book/Resource/Books/Sales",
+            data: { "bookName": bookName, "languageId": languageId },
             beforeSend: function () {
-                $("#loader").show();
+                $("#loader-container").show();
             },
             complete: function () {
-                $("#loader").hide();
+                $("#loader-container").hide();
             },
             success: function (data) {
                 try {
                     $("#dvbooks").empty();
                     var dvRecord = "";
-                    for (let i = 0; i < data.length; i++) {
-                        dvRecord += addBooktoDiv(data[i]);
+                    for (let i = 0; i < data.books.length; i++) {
+                        dvRecord += addBooktoDiv(data.books[i]);
                     }
                     $("#dvbooks").append(dvRecord);
+                    if (reloadLanguage) {
+                        dvRecord = "<option value='-1'>SELECT-LANGUAGE</option>";
+                        for (let i = 0; i < data.languages.length; i++) {
+                            dvRecord += '<option value="' + data.languages[i].languageId + '">' + data.languages[i].languageName + '</option>';
+                        }
+                        $("#ddlBookLanguage").html(dvRecord);
+                    }
+
                 } catch (e) {
                     //alert("Error in Storing Authors In table" + e.message);
                     alertify.error("Error in Storing Books In Card");
@@ -54,7 +85,7 @@
                 if (request.statusCode == 401) {
                     RedirectToLogin();
                 }
-                alertify.error("Error in getting all Authors");
+                alertify.error("Error in getting Data");
                 //alert("Error in getting all Authors");
             }
 
@@ -88,7 +119,7 @@
     }
     function openProduct(BookId) {
         localStorage.setItem("BookId", BookId);
-        location.href = '/Home/Book';
+        location.href = '/Home/Books';
 
     }
 </script>

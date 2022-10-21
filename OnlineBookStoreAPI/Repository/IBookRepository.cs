@@ -13,5 +13,6 @@ namespace OnlineBookStoreAPI.Repository
         Task<int> AddBookAsync(BookDTO author);
         Task<int> UpdateBookAsync(int authorId, BookDTO author);
         Task<int> DeleteBookAsync(int authorId);
+        Task<List<BookDTO>> GetAllSearchedBookAsync(string bookName, int languageId);
     }
 }

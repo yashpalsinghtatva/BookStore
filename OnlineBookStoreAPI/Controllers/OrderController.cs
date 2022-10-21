@@ -13,11 +13,9 @@ namespace OnlineBookStoreAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-
         public OrderController(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
@@ -45,15 +43,14 @@ namespace OnlineBookStoreAPI.Controllers
         {
             try
             {
+                orderDTO.UserId = Convert.ToInt32(User.FindFirst("UserId").Value);
                 int Id = await _orderRepository.AddOrderAsync(orderDTO);
                 orderDTO.OrderId = Id;
                 return CreatedAtAction(nameof(GetOrderById), new { id = Id, controller = "order" }, orderDTO);
-
             }
             catch (Exception ex)
             {
-
-                throw;
+                return StatusCode(500, new { message = "Exception Occured : " + ex.Message });
             }
         }
         [HttpPut("{id}")]
@@ -77,6 +74,46 @@ namespace OnlineBookStoreAPI.Controllers
             }
             return BadRequest();
         }
+
+        [HttpGet("User")]
+        public async Task<IActionResult> GetUserOrder()
+        {
+            try
+            {
+                int userId = Convert.ToInt32(User.FindFirst("UserId").Value);
+                var previousUserOrder = await _orderRepository.GetAllOrdersByUserIdAsync(userId);
+
+                return Ok(previousUserOrder); 
+                
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Exception Occured : " + ex.Message });
+
+            }
+
+        }
+
+        [HttpPost("CancelOrder/{orderId}")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                 int cancelledOrderId = await _orderRepository.CancelOrderAsync(orderId);
+                if (cancelledOrderId > 0)
+                {
+                    return Ok(cancelledOrderId);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Exception Occured : " + ex.Message });
+
+            }
+
+        }
+
 
     }
 }

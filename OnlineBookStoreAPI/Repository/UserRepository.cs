@@ -58,7 +58,7 @@ namespace OnlineBookStoreAPI.Repository
 
         public async Task<Tokens> Authenticate(UserDTO userDTO)
         {
-            var user = await _dbContext.Users.Include(x=>x.UserType).Where(x => x.UserEmail.Equals(userDTO.UserEmail) && x.Password.Equals(userDTO.Password)).FirstOrDefaultAsync();
+            var user = await _dbContext.Users.Include(x=>x.UserType).Where(x => x.UserEmail.Equals(userDTO.UserEmail) && x.Password.Equals(userDTO.Password) && x.UserTypeId == userDTO.UserTypeId).FirstOrDefaultAsync();
 
             if (user == null)
             {

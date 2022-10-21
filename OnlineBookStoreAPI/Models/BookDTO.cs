@@ -21,8 +21,11 @@ namespace OnlineBookStoreAPI.Models
         public LanguageDTO Language { get; set; }
         public PublisherDTO Publisher { get; set; }
         public int NumberofPages { get; set; }
+        public int NumberOfBooks { get; set; }
+
         public DateTime PublishDate { get; set; }
         public int LanguageId { get; set; }
         public int PublisherId { get; set; }
+        public int OrderedBookQuantity { get; set; }
     }
 }

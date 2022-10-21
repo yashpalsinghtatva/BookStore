@@ -193,7 +193,7 @@
         font-weight: bold;
     }
 
-    ._p-qty input#number {
+    ._p-qty input {
         text-align: center;
         border: none;
         border-top: 1px solid #fe0000;
@@ -393,6 +393,100 @@
     .sq_box span.wishlist i:hover {
         color: #fd7f34;
     }
+
+    .form-control {
+        border-bottom: 2px solid #eee !important;
+        border: none;
+        font-weight: 600
+    }
+
+        .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #8bbafe;
+            outline: 0;
+            box-shadow: none;
+            border-radius: 0px;
+            border-bottom: 2px solid blue !important;
+        }
+
+
+
+    .inputbox {
+        position: relative;
+        margin-bottom: 20px;
+        width: 100%
+    }
+
+        .inputbox span {
+            position: absolute;
+            top: 7px;
+            left: 11px;
+            transition: 0.5s
+        }
+
+        .inputbox i {
+            position: absolute;
+            top: 13px;
+            right: 8px;
+            transition: 0.5s;
+            color: #3F51B5
+        }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0
+    }
+
+    .inputbox input:focus ~ span {
+        transform: translateX(-0px) translateY(-15px);
+        font-size: 12px
+    }
+
+    .inputbox input:valid ~ span {
+        transform: translateX(-0px) translateY(-15px);
+        font-size: 12px
+    }
+
+    .card-blue {
+        background-color: #492bc4;
+    }
+
+    .hightlight {
+        background-color: #5737d9;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .yellow {
+        color: #fdcc49;
+    }
+
+    .decoration {
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-success {
+        color: #fff;
+        background-color: #492bc4;
+        border-color: #492bc4;
+    }
+
+        .btn-success:hover {
+            color: #fff;
+            background-color: #492bc4;
+            border-color: #492bc4;
+        }
+
+
+    .decoration:hover {
+        text-decoration: none;
+        color: #fdcc49;
+    }
 </style>
 <section id="services" class="services section-bg">
     <div class="container-fluid">
@@ -421,28 +515,120 @@
                             <div class="_p-qty">
                                 <span>Add Quantity</span>
                                 <div class="value-button decrease_" id="" value="Decrease Value">-</div>
-                                <input type="number" name="qty" id="number" value="1" />
+                                <input type="number" disabled name="txtBookQuantity" id="txtBookQuantity" value="0" />
+                                <input type="hidden" name="hdnBookQuantity" id="hdnBookQuantity" />
                                 <div class="value-button increase_" id="" value="Increase Value">+</div>
+                            </div>
+                            <div>
+                                <span name="spnBookQuantity" class="form-label text-danger" id="spnBookQuantity"></span>
                             </div>
                         </div>
                         <div class="_p-features">
                             <span> Description About this book:- </span>
                             <span id="spnBookDesc"></span>
                         </div>
-                        <form action="" method="post" accept-charset="utf-8">
-                            <ul class="spe_ul"></ul>
-                            <div class="_p-qty-and-cart">
-                                <div class="_p-add-cart">
-                                    <button class="btn-theme btn buy-btn" tabindex="0">
-                                        <i class="fa fa-shopping-cart"></i> Buy Now
-                                    </button>
-                                    @*<button class="btn-theme btn btn-success" tabindex="0">
+
+                        <ul class="spe_ul"></ul>
+                        <div class="_p-qty-and-cart">
+                            <div class="_p-add-cart">
+                                <button class="btn-theme btn buy-btn" onclick="OpenPaymentTab()" tabindex="0">
+                                    <i class="fa fa-shopping-cart"></i> Buy Now
+                                </button>
+                                @*<button class="btn-theme btn btn-success" tabindex="0">
                                         <i class="fa fa-shopping-cart"></i> Add to Cart
                                     </button>*@
-                                   
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="payment" style="display:none;">
+    <div class="container mt-5 px-5">
+        <div class="mb-4">
+            <h2>Confirm order and pay</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card p-3">
+                    <h6 class="text-uppercase">Payment Mode</h6>
+                    <div class="inputbox mt-3">
+                        <select id="ddlPaymentMethods" class="form-control"> </select>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2">
+                                    <input type="text" name="name" class="form-control" required="required"> <i class="fa fa-credit-card"></i> <span>Card Number</span>
                                 </div>
                             </div>
-                        </form>
+                            <div class="col-md-6">
+                                <div class="d-flex flex-row">
+                                    <div class="inputbox mt-3 mr-2"> <input type="text" name="name" class="form-control" required="required"> <span>Expiry</span> </div>
+                                    <div class="inputbox mt-3 mr-2"> <input type="text" name="name" class="form-control" required="required"> <span>CVV</span> </div>
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="mt-4 mb-4">
+                        <h6 class="text-uppercase">Shipping Address</h6>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2"> <input type="text" id="txtStreetAddress" name="txtStreetAddress" class="form-control"> <span>Street Address</span> </div>
+                                <span id="spnStreetAddress" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2"> <input type="text" id="txtCity" name="txtCity" class="form-control"> <span>City</span> </div>
+                                <span id="spnCity" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2"> <input type="text" id="txtState" name="txtState" class="form-control"> <span>State/Province</span> </div>
+                                <span id="spnState" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2"> <input type="text" id="txtZipCode" name="txtZipCode" class="form-control"> <span>Zip code</span> </div>
+                                <span id="spnZipCode" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2">
+                                    <select id="ddlCountries" class="form-control"> </select> 
+                                </div>
+                                <span id="spnCountry" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="inputbox mt-3 mr-2"> <input type="text" id="txtPhoneNo" name="txtPhoneNo" class="form-control"> <span>Phone Number</span> </div>
+                                <span id="spnPhoneNo" class="form-label text-danger" style="display:none;"></span>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 mb-4 d-flex justify-content-between">
+                    @*<span>Previous step</span>*@
+                    <button class="btn btn-success px-3" onclick="placeOrder();">Order</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-blue p-3 text-white mb-3">
+                    <span>You have to pay</span>
+                    <div class="d-flex flex-row align-items-end mb-3">
+                        <h1 class="mb-0 yellow">$<span id="spnTotal"></span> </h1>
+                    </div>
+                    <span>Your Book Will be delivered to the address you submit</span>
+                    <a href="#" class="yellow decoration">Terms & Conditions </a>
+                    <div class="hightlight">
+                        <span>@*100% Guaranteed support and update for the next 5 years.*@</span>
                     </div>
                 </div>
             </div>
@@ -451,7 +637,8 @@
 </section>
 
 <script>
-
+    let accessToken = null;
+    let BookId = 0;
     (function ($) {
         $.fn.picZoomer = function (options) {
             var opts = $.extend({}, $.fn.picZoomer.defaults, options),
@@ -504,7 +691,8 @@
         };
     })(jQuery);
     $(document).ready(function () {
-        let BookId = localStorage.getItem("BookId");
+        accessToken = localStorage.getItem("accessToken");
+        BookId = localStorage.getItem("BookId");
         if (isNaN(BookId)) {
             location.href = '/Home/AllBooks';
         }
@@ -523,25 +711,35 @@
             increaseValue(this);
         });
         function increaseValue(_this) {
-            var value = parseInt($(_this).siblings('input#number').val(), 10);
-            value = isNaN(value) ? 0 : value;
-            value++;
-            $(_this).siblings('input#number').val(value);
+            var currentValue = parseInt($(_this).siblings('input#txtBookQuantity').val(), 10);
+            var totalAvailableStock = parseInt($(_this).siblings('input#hdnBookQuantity').val(), 10);
+            currentValue = isNaN(currentValue) ? 0 : currentValue;
+            currentValue++;
+
+            if (currentValue > totalAvailableStock) {
+                alertify.error("Out of Stock!!")
+                return false;
+            }
+            $(_this).siblings('input#txtBookQuantity').val(currentValue);
+            $("#spnBookQuantity").text(totalAvailableStock - currentValue + " left in stock");
+
         }
 
         function decreaseValue(_this) {
-            var value = parseInt($(_this).siblings('input#number').val(), 10);
+            var value = parseInt($(_this).siblings('input#txtBookQuantity').val(), 10);
             value = isNaN(value) ? 0 : value;
             value < 1 ? value = 1 : '';
             value--;
-            $(_this).siblings('input#number').val(value);
+            $(_this).siblings('input#txtBookQuantity').val(value);
         }
     });
     function GetBook(bookId) {
         $.ajax({
             type: "GET",
-            url: ServiceUrl + "api/Book/" + bookId,
+            url: ServiceUrl + "api/Book/Sales/" + bookId,
             data: "{}",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
             beforeSend: function () {
                 $("#loader").show();
             },
@@ -550,12 +748,27 @@
             },
             success: function (data) {
                 try {
-                    $("#spnBookName").text(data.bookTitle);
-                    $("#spnBookDesc").text(data.bookDescription);
-                    $("#spnBookPrice").text(data.bookPrice);
-                    $("#bookImg").prop('src', ServiceUrl + data.bookImagePath);
-                    $("#bookImglist").prop('src', ServiceUrl + data.bookImagePath);
-                    
+                    debugger;
+                    $("#spnBookName").text(data.book.bookTitle);
+                    $("#spnBookDesc").text(data.book.bookDescription);
+                    $("#spnBookPrice").text(data.book.bookPrice);
+                    $("#spnBookQuantity").text(data.book.numberOfBooks + " left in stock");
+                    $("#hdnBookQuantity").val(data.book.numberOfBooks);
+                    $("#bookImg").prop('src', ServiceUrl + data.book.bookImagePath);
+                    $("#bookImglist").prop('src', ServiceUrl + data.book.bookImagePath);
+
+                    let option = "";
+                    for (let i = 0; i < data.countries.length; i++) {
+                        option += '<option value="' + data.countries[i].countryId + '">' + data.countries[i].countryName+ '</option>';
+                    }
+                    $("#ddlCountries").html(option);
+
+                    option = "";
+                    for (let i = 0; i < data.shippingMethods.length; i++) {
+                        option += '<option value="' + data.shippingMethods[i].shippingMethodId + '">' + data.shippingMethods[i].shippingMethodName + '</option>';
+                    }
+                    $("#ddlPaymentMethods").html(option);
+
                 } catch (e) {
                     alertify.error("Error in Getting Book Details");
                     //alert("Error in Getting Book Details" + e.message);
@@ -563,7 +776,7 @@
                 }
             },
             headers: {
-                //Authorization: 'Bearer ' + accessToken
+                Authorization: 'Bearer ' + accessToken
             },
             error: function (request, status, errorThrown) {
                 if (request.statusCode == 401) {
@@ -576,5 +789,131 @@
         });
 
     }
+    function OpenPaymentTab() {
 
+        var boughtQuantity = parseInt($('input#txtBookQuantity').val(), 10);
+        if (boughtQuantity <= 0) {
+            alertify.error("Quantity cannot be less than 1");
+            return false;
+        }
+        var bookPrice = parseFloat($('#spnBookPrice').text());
+
+        $("#spnTotal").text(boughtQuantity * bookPrice);
+        $("#payment").show();
+    }
+    function placeOrder() {
+        if (validateControl()) {
+            let Order = {
+                "OrderDate": new Date(),
+                "Address": {
+                    "AddressTitle": $("#txtStreetAddress").val(),
+                    "PinCode": $("#txtZipCode").val(),
+                    "City": $("#txtCity").val(),
+                    "State": $("#txtState").val(),
+                    "CountryId": parseInt($("#ddlCountries").val())
+                },
+                "ShippingMethodId": parseInt($("#ddlPaymentMethods").val()),
+                "OrderStatus": "O",
+                "PhoneNumber": $("#txtPhoneNo").val(),
+                "BookIds": [parseInt(BookId)],
+                "Total": parseInt($("#spnTotal").text()),
+                "Quantity": parseInt($("#txtBookQuantity").val())
+            };
+            var OrderJson = JSON.stringify(Order);
+
+            $.ajax({
+                type: "POST",
+                url: ServiceUrl + "api/Order",
+                data: OrderJson,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function () {
+                    $("#loader").show();
+                },
+                complete: function () {
+                    $("#loader").hide();
+                },
+                success: function (data) {
+                    try {
+                        alertify.success("Order Placed");
+
+                    } catch (e) {
+                        alertify.error("Error in Getting Book Details");
+                        //alert("Error in Getting Book Details" + e.message);
+
+                    }
+                },
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                error: function (request, status, errorThrown) {
+                    if (request.statusCode == 401) {
+                        RedirectToLogin();
+                    }
+                    alertify.error("Error in getting current Book");
+                    //alert("Error in getting current Book");
+                }
+
+            });
+        }
+    }
+    function validateControl() {
+        let errorCount = 0;
+        streetAddress = $("#txtStreetAddress").val();
+        city = $("#txtCity").val();
+        state = $("#txtState").val();
+        zipCode = $("#txtZipCode").val();
+        //country = $("#txtCountry").val();
+        phoneNo = $("#txtPhoneNo").val();
+
+        if (streetAddress == null || streetAddress == "") {
+            $("#spnStreetAddress").text("Street Address is required").show();
+            errorCount++;
+        }
+        else {
+            $("#spnStreetAddress").hide();
+        }
+
+        if (city == null || city == "") {
+            $("#spnCity").text("City is required").show();
+            errorCount++;
+        }
+        else {
+            $("#spnCity").hide();
+        }
+
+        if (state == null || state == "") {
+            $("#spnState").text("State is required").show();
+            errorCount++;
+        }
+        else {
+            $("#spnState").hide();
+        }
+
+        if (zipCode == null || zipCode == "") {
+            $("#spnZipCode").text("Zip Code is required").show();
+            errorCount++;
+        }
+        else {
+            $("#spnZipCode").hide();
+        }
+        //if (country == null || country == "") {
+        //    $("#spnCountry").text("Country is required").show();
+        //    errorCount++;
+        //}
+        //else {
+        //    $("#spnCountry").hide();
+        //}
+        if (phoneNo == null || phoneNo == "") {
+            $("#spnPhoneNo").text("Phone Number is required").show();
+            errorCount++;
+        }
+        else {
+            $("#spnPhoneNo").hide();
+        }
+        if (errorCount > 0)
+            return false;
+        else
+            return true;
+    }
 </script>

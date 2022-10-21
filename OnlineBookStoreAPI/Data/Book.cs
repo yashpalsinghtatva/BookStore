@@ -18,7 +18,7 @@ namespace OnlineBookStoreAPI.Data
         public string ISBN { get; set; }
         public int AuthorId { get; set; }
         public string BookImagePath { get; set; }
-        //public int NumberOfBooks { get; set; }
+        public int NumberOfBooks { get; set; }
         public Language Language { get; set; }
         public Publisher Publisher { get; set; }
         public int NumberofPages { get; set; }
@@ -26,6 +26,8 @@ namespace OnlineBookStoreAPI.Data
         public List<OrderBook> orderBooks { get; set; }
         public int LanguageId { get; set; }
         public int PublisherId { get; set; }
+        public List<CartItem> CartItems { get; set; }
+
 
 
     }

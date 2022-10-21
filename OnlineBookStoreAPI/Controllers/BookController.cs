@@ -21,14 +21,18 @@ namespace OnlineBookStoreAPI.Controllers
         private readonly IAuthorRepository _authorRepository;
         private readonly ILanguageRepository _languageRepository;
         private readonly IPublisherRepository _publisherRepository;
+        private readonly IShippingMethodRepository _shippingMethodRepository;
+        private readonly ICountryRepository _countryRepository;
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        public BookController(IBookRepository bookRepository, IAuthorRepository authorRepository, ILanguageRepository languageRepository, IPublisherRepository publisherRepository, IWebHostEnvironment hostEnvironment)
+        public BookController(IBookRepository bookRepository, IAuthorRepository authorRepository, ILanguageRepository languageRepository, IPublisherRepository publisherRepository, IShippingMethodRepository shippingMethodRepository, ICountryRepository countryRepository, IWebHostEnvironment hostEnvironment)
         {
             _bookRepository = bookRepository;
             _authorRepository = authorRepository;
             _languageRepository = languageRepository;
             _publisherRepository = publisherRepository;
+            _shippingMethodRepository = shippingMethodRepository;
+            _countryRepository= countryRepository;
             _hostEnvironment = hostEnvironment;
         }
         [HttpGet]
@@ -151,6 +155,54 @@ namespace OnlineBookStoreAPI.Controllers
                 bookResources.Languages = await _languageRepository.GetAllLanguageAsync();
                 bookResources.Publishers = await _publisherRepository.GetAllPublisherAsync();
                 return Ok(bookResources);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Exception Occured : " + ex.Message });
+
+            }
+
+        }
+
+        [HttpGet("Resource/Books/Sales")]
+        public async Task<IActionResult> GetAllAvailableBooks(string bookName, int languageId)
+        {
+            try
+            {
+                UserProductResourcesDTO userResources = new UserProductResourcesDTO();
+                userResources.Languages = await _languageRepository.GetAllLanguageAsync();
+                if ((!String.IsNullOrEmpty(bookName)) || languageId > 0)
+                {
+                    userResources.Books = await _bookRepository.GetAllSearchedBookAsync(bookName, languageId);
+                }
+                else
+                {
+                    userResources.Books = await _bookRepository.GetAllBookAsync();
+                }
+                return Ok(userResources);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Exception Occured : " + ex.Message });
+
+            }
+
+        }
+
+        [HttpGet("Sales/{bookId}")]
+        public async Task<IActionResult> GetBookForOrder([FromRoute] int bookId)
+        {
+            try
+            {
+                BookDTO book = await _bookRepository.GetBookByIdAsync(bookId);
+                List<ShippingMethodDTO> shippingMethods = await _shippingMethodRepository.GetAllShippingMethodsAsync();
+                List<CountryDTO> countries= await _countryRepository.GetAllCountriesAsync();
+                return Ok(new
+                {
+                    book = book,
+                    shippingMethods = shippingMethods,
+                    countries = countries
+                }); ;
             }
             catch (Exception ex)
             {

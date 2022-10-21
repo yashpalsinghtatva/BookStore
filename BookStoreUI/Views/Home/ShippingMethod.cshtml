@@ -90,10 +90,10 @@
                 contentType: "application/json; charset=utf-8",
                 data: ShippingMethodJson,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {
@@ -126,10 +126,10 @@
             url: ServiceUrl + "api/ShippingMethod",
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -171,10 +171,10 @@
             url: ServiceUrl + "api/ShippingMethod/" + shippingMethodId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -205,10 +205,10 @@
             url: ServiceUrl + "api/ShippingMethod/" + shippingMethodId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {

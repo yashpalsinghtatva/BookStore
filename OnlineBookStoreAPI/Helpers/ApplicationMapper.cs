@@ -21,6 +21,10 @@ namespace OnlineBookStoreAPI.Helpers
             CreateMap<Country, CountryDTO>().ReverseMap();
             CreateMap<Country, CountryDTO>().ReverseMap();
             CreateMap<ShippingMethod, ShippingMethodDTO>().ReverseMap();
+            CreateMap<Address, AddressDTO>().ReverseMap();
+            CreateMap<Order, OrderDTO>().ReverseMap();
+            CreateMap<OrderBook, OrderBookDTO>().ReverseMap();
+            CreateMap<Cart, CartDTO>().ReverseMap();
         }
     }
 }

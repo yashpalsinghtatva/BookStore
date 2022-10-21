@@ -9,9 +9,11 @@ namespace OnlineBookStoreAPI.Repository
     public interface IOrderRepository
     {
         Task<List<OrderDTO>> GetAllOrdersAsync();
+        Task<List<OrderHistoryDTO>> GetAllOrdersByUserIdAsync(int userId);
         Task<OrderDTO> GetOrderByIdAsync(int id);
         Task<int> AddOrderAsync(OrderDTO orderDTO);
         Task<int> UpdateOrderAsync(int orderId, OrderDTO orderDTO);
         Task<int> DeleteOrderAsync(int orderId);
+        Task<int> CancelOrderAsync(int orderId);
     }
 }

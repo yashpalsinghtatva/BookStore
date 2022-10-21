@@ -90,16 +90,10 @@
                 contentType: "application/json; charset=utf-8",
                 data: AuthorJson,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
-                },
-                beforeSend: function () {
-                    $("#loader").show();
-                },
-                complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {
@@ -133,10 +127,10 @@
             url: ServiceUrl + "api/Author",
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -184,10 +178,10 @@
             url: ServiceUrl + "api/Author/" + authorId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -227,10 +221,10 @@
             url: ServiceUrl + "api/Author/" + authorId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {

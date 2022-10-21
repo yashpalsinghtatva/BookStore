@@ -38,6 +38,9 @@ namespace OnlineBookStoreAPI.Migrations
                     b.Property<string>("PinCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("State")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("AddressId");
 
                     b.HasIndex("CountryId");
@@ -88,6 +91,9 @@ namespace OnlineBookStoreAPI.Migrations
                     b.Property<int>("LanguageId")
                         .HasColumnType("int");
 
+                    b.Property<int>("NumberOfBooks")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumberofPages")
                         .HasColumnType("int");
 
@@ -106,6 +112,66 @@ namespace OnlineBookStoreAPI.Migrations
                     b.HasIndex("PublisherId");
 
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("OnlineBookStoreAPI.Data.Cart", b =>
+                {
+                    b.Property<int>("CartId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CartTotal")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<bool>("IsCartActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("OnlineBookStoreAPI.Data.CartItem", b =>
+                {
+                    b.Property<int>("CartItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BookPrice")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("BookQuanitity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BookTotal")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartItemId");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("CartId");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("OnlineBookStoreAPI.Data.Country", b =>
@@ -151,20 +217,24 @@ namespace OnlineBookStoreAPI.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OrderStatusId")
+                    b.Property<string>("OrderStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ShippingMethodId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ShippingMethodId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,4)");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("OrderId");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("OrderStatusId");
 
                     b.HasIndex("ShippingMethodId");
 
@@ -186,6 +256,9 @@ namespace OnlineBookStoreAPI.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderBookId");
 
                     b.HasIndex("BookId");
@@ -193,21 +266,6 @@ namespace OnlineBookStoreAPI.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderBooks");
-                });
-
-            modelBuilder.Entity("OnlineBookStoreAPI.Data.OrderStatus", b =>
-                {
-                    b.Property<int>("OrderStatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("OrderStatusValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("OrderStatusId");
-
-                    b.ToTable("OrderStatuses");
                 });
 
             modelBuilder.Entity("OnlineBookStoreAPI.Data.Publisher", b =>
@@ -312,23 +370,47 @@ namespace OnlineBookStoreAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OnlineBookStoreAPI.Data.Cart", b =>
+                {
+                    b.HasOne("OnlineBookStoreAPI.Data.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OnlineBookStoreAPI.Data.CartItem", b =>
+                {
+                    b.HasOne("OnlineBookStoreAPI.Data.Book", "Book")
+                        .WithMany("CartItems")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnlineBookStoreAPI.Data.Cart", "Cart")
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OnlineBookStoreAPI.Data.Order", b =>
                 {
                     b.HasOne("OnlineBookStoreAPI.Data.Address", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId");
 
-                    b.HasOne("OnlineBookStoreAPI.Data.OrderStatus", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("OrderStatusId");
-
                     b.HasOne("OnlineBookStoreAPI.Data.ShippingMethod", "ShippingMethod")
                         .WithMany("Orders")
-                        .HasForeignKey("ShippingMethodId");
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OnlineBookStoreAPI.Data.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OnlineBookStoreAPI.Data.OrderBook", b =>

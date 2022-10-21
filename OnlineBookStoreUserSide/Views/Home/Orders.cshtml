@@ -1,0 +1,208 @@
+﻿@{
+    ViewData["Title"] = "Book";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .cell-1 {
+        border-collapse: separate;
+        border-spacing: 0 4em;
+        background: #fff;
+        border-bottom: 5px solid transparent;
+        /*background-color: gold;*/
+        background-clip: padding-box;
+    }
+
+    thead {
+        background: #dddcdc;
+    }
+
+    .toggle-btn {
+        width: 40px;
+        height: 21px;
+        background: grey;
+        border-radius: 50px;
+        padding: 3px;
+        cursor: pointer;
+        -webkit-transition: all 0.3s 0.1s ease-in-out;
+        -moz-transition: all 0.3s 0.1s ease-in-out;
+        -o-transition: all 0.3s 0.1s ease-in-out;
+        transition: all 0.3s 0.1s ease-in-out;
+    }
+
+        .toggle-btn > .inner-circle {
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            -webkit-transition: all 0.3s 0.1s ease-in-out;
+            -moz-transition: all 0.3s 0.1s ease-in-out;
+            -o-transition: all 0.3s 0.1s ease-in-out;
+            transition: all 0.3s 0.1s ease-in-out;
+        }
+
+        .toggle-btn.active {
+            background: blue !important;
+        }
+
+            .toggle-btn.active > .inner-circle {
+                margin-left: 19px;
+            }
+</style>
+<div class="container mt-5">
+    <div class="d-flex justify-content-center row mb-4">
+        <h3>Order History</h3>
+    </div>
+    <div class="d-flex justify-content-center row">
+
+        <div class="col-md-10">
+            <div class="rounded">
+                <div class="table-responsive table-borderless">
+                    <table class="table">
+                        <thead>
+                            <tr>
+
+                                <th>Book Name</th>
+                                <th>Book Image</th>
+                                <th>ISBN</th>
+                                <th>Quantity</th>
+                                <th>status</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dvBody" class="table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let accessToken = null;
+    $(document).ready(function () {
+        accessToken = localStorage.getItem("accessToken");
+        getAllOrders();
+
+    });
+    function getAllOrders() {
+        $.ajax({
+            type: "GET",
+            url: ServiceUrl + "api/Order/User",
+            data: "{}",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    $("#dvBody").empty();
+                    var dvRecord = "";
+                    for (let i = 0; i < data.length; i++) {
+                        dvRecord += addRecordToOrder(data[i]);
+                    }
+                    $("#dvBody").append(dvRecord);
+                } catch (e) {
+                    //alert("Error in Storing Authors In table" + e.message);
+                    alertify.error("Error in Storing Books In table");
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting all Authors");
+                //alert("Error in getting all Authors");
+            }
+
+        });
+
+    }
+
+    function addRecordToOrder(record) {
+        let orderRecord = "";
+        orderRecord += "<tr class='cell-1'>";
+        //authorRecord += "<td>" + record.authorId + "</td>";
+        for (let book of record.books) {
+            orderRecord += "<td>" + book.bookTitle + "</td>";
+            orderRecord += "<td> <img src ='" + ServiceUrl + book.bookImagePath + "' height='100px' width='100px'/> </td>";
+            orderRecord += "<td>" + book.isbn + "</td>";
+            orderRecord += "<td>" + book.orderedBookQuantity + "</td>";
+        }
+        let orderStatusColor, orderStatus = "";
+        if (record.orderStatus == "O") {
+            orderStatusColor = "badge-primary";
+            orderStatus = "Ordered";
+        }
+        else if (record.orderStatus == "C") {
+            orderStatusColor = "badge-danger";
+            orderStatus = "Cancelled";
+        }
+        else if (record.orderStatus == "D") {
+            orderStatusColor = "badge-success";
+            orderStatus = "Delivered";
+        }
+        orderRecord += "<td><span class='badge " + orderStatusColor + "'> " + orderStatus + "</span></td>";
+        orderRecord += "<td>" + record.total + "</td>";
+        orderRecord += "<td>" + new Date(record.orderDate).toLocaleDateString() + "</td>";
+        if (record.orderStatus == "C") {
+            orderRecord += "<td> <button class='btn btn-danger' disabled> Cancelled </button>";
+        }
+        else if (record.orderStatus == "D") {
+            orderRecord += "<td> <button class='btn btn-info' disabled> Delivered </button>";
+        }
+        else if (record.orderStatus == "O") {
+            orderRecord += "<td> <button class='btn btn-danger'onClick='CancelOrderPrompt(" + record.orderId + ")' >Cancel Order</button>";
+        }
+        orderRecord += "</tr>";
+        return orderRecord;
+    }
+    function CancelOrderPrompt(orderId) {
+        alertify.confirm('', 'Are you sure you want to cancel order?', function () { CancelOrder(orderId); }
+            , function () { alertify.error('Cancel') });
+    }
+    function CancelOrder(orderId) {
+        $.ajax({
+            type: "POST",
+            url: ServiceUrl + "api/Order/CancelOrder/" + orderId,
+            data: "{}",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    getAllOrders();
+                    alertify.success("Order Cancelled");
+                } catch (e) {
+                    alertify.error("Error in Getting Book Details");
+                    //alert("Error in Getting Book Details" + e.message);
+
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting current Book");
+                //alert("Error in getting current Book");
+            }
+
+        });
+
+        alert(orderId);
+    }
+</script>

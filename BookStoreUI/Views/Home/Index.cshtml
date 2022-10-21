@@ -11,16 +11,57 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/css/alertify.min.css" rel="stylesheet" />
+    <style>
+        #loader-container {
+            background-color: rgba(0,0,0,0.5);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
 
+        #loader {
+            position: relative;
+            left: 45%;
+            top: 50%;
+            width: 50px;
+            height: 50px;
+            border: 5px solid green;
+            border-radius: 50%;
+            animation: zoom 2s ease-in-out infinite;
+        }
+
+        @@keyframes zoom {
+            0% {
+                transform: scale(0.2);
+                border-color: green;
+            }
+
+            50% {
+                transform: scale(1.2);
+                border-color: orange;
+            }
+
+            100% {
+                transform: scale(0.2);
+                border-color: green;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="loader-container" style="display:none;">
+        <div id="loader"></div>
+    </div>
     <section class="vh-100">
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-md-9 col-lg-6 col-xl-5">
-                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-                         class="img-fluid" alt="Sample image">
-                </div>
+                @*<div class="col-md-9 col-lg-6 col-xl-5">
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                             class="img-fluid" alt="Sample image">
+                    </div>*@
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
                     <form>
                         @*<div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
@@ -116,6 +157,14 @@
 <script src="~/js/alertify.min.js"></script>
 <script src="~/js/Global.js"></script>
 <script>
+    function showLoader() {
+        $("#loader-container").show();
+    }
+    function hideLoader() {
+        $("#loader-container").hide();
+    }
+</script>
+<script>
     $(document).ready(function () {
         let errorMessage = localStorage.getItem("message");
         if (errorMessage) {
@@ -125,7 +174,8 @@
         $("#btnLogin").click(function () {
             var User = {
                 "UserEmail": $("#txtEmail").val(),
-                "Password": $("#txtPassword").val()
+                "Password": $("#txtPassword").val(),
+                "UserTypeId": 1
             };
             var UserJson = JSON.stringify(User);
             $.ajax({
@@ -135,10 +185,10 @@
                 contentType: "application/json; charset=utf-8",
                 data: UserJson,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {

@@ -16,7 +16,7 @@
                 Book Title
             </th>
             <th>
-                Book Desc
+                Book Desciption
             </th>
             <th>
                 Book Price($)
@@ -28,10 +28,13 @@
                 Book ISBN
             </th>
             <th>
+                Number of Pages
+            </th>
+            <th>
                 Book Publisher
             </th>
             <th>
-                Number of Pages
+                Stock Left
             </th>
             <th>
                 Publisher Date
@@ -100,10 +103,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="BookTitle" class="control-label col-md-5">ISBN</label>
+                        <label for="txtBookISBN" class="control-label col-md-5">ISBN</label>
                         <div class="col-md-7">
-                            <input type="text" id="txtBookISBN" class="form-control"  />
-                            <span id="spnBookISBN" class="form-label text-danger" style="display:none;"></span>
+                            <input type="text" id="txtBookISBN" class="form-control" />
+                            <span id="spnBookISBN" class="form-label text-danger" ></span>
 
                         </div>
                     </div>
@@ -111,7 +114,7 @@
                         <label for="txtNoofPages" class="control-label col-md-5">No. of Pages</label>
                         <div class="col-md-7">
                             <input type="number" id="txtNoofPages" class="form-control" />
-                            <span id="spnBookNoofPages" class="form-label text-danger" style="display:none;"></span>
+                            <span id="spnBookNoofPages" class="form-label text-danger" ></span>
 
                         </div>
                     </div>
@@ -119,15 +122,21 @@
                         <label for="txtPublishDate" class="control-label col-md-5">Publish Date</label>
                         <div class="col-md-7">
                             <input type="date" id="txtPublishDate" class="form-control" />
-                            <span id="spnPublishDate" class="form-label text-danger" style="display:none;"></span>
+                            <span id="spnPublishDate" class="form-label text-danger" ></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="txtNoofBooks" class="control-label col-md-5">Stock</label>
+                        <div class="col-md-7">
+                            <input type="number" id="txtNoofBooks" class="form-control" />
+                            <span id="spnNoofBooks" class="form-label text-danger" ></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="BookTitle" class="control-label col-md-5">Book Image</label>
                         <div class="col-md-7">
                             <input type="file" id="imgBook" name="filename">
-                            <span id="spnBookImage" class="form-label text-danger" style="display:none;"></span>
-
+                            <span id="spnBookImage" class="form-label text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -144,7 +153,6 @@
     let accessToken = null;
     $(document).ready(function () {
         accessToken = localStorage.getItem("accessToken");
-        getAllBooks();
         getAllBooks();
         getAllBookResources();
         $("#btnOpenAddBookModal").click(function () {
@@ -174,6 +182,7 @@
             formData.append("PublisherId", parseInt($("#ddlPublisherName").val()));
             formData.append("NumberofPages", parseInt($("#txtNoofPages").val()));
             formData.append("PublishDate", $("#txtPublishDate").val());
+            formData.append("NumberOfBooks", $("#txtNoofBooks").val());
             formData.append("ISBN", $("#txtBookISBN").val());
             let methodType = "";
             let url = "";
@@ -197,20 +206,13 @@
                 //contentType: "application/json; charset=utf-8",
                 data: formData,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
-                },
-                beforeSend: function () {
-                    $("#loader").show();
-                },
-                complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {
-
                         getAllBooks();
                         $("#BookModel").modal('hide');
                         clearModal();
@@ -230,7 +232,7 @@
                     }
                     alertify.error("Error in adding Book ");
                     //alert("Error in adding Book " + e.message);
-                    console.log(e);
+                    //console.log(e);
                 },
             });
         })
@@ -241,10 +243,10 @@
             url: ServiceUrl + "api/Book",
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -282,9 +284,11 @@
         authorRecord += "<td>" + record.bookPrice + "</td>";
         authorRecord += "<td>" + record.author.authorName + "</td>";
         authorRecord += "<td>" + record.isbn + "</td>";
-        authorRecord += "<td>" + record.publisher.publisherName + "</td>";
         authorRecord += "<td>" + record.numberofPages + "</td>";
+        authorRecord += "<td>" + record.publisher.publisherName + "</td>";
+        authorRecord += "<td>" + record.numberOfBooks + "</td>";
         authorRecord += "<td>" + record.publishDate + "</td>";
+        authorRecord += "<td>" + record.language.languageName + "</td>";
         authorRecord += "<td>" + record.language.languageName + "</td>";
         authorRecord += "<td> <img src ='" + ServiceUrl + record.bookImagePath + "' height='100px' width='100px'/> </td>";
         authorRecord += "<td> <a href='#' onClick='OpenEditBookModal(" + record.bookId + ")' >Edit</a> | <a href='#' onClick='DeleteBook(" + record.bookId + ")' >Delete</a> </td>";
@@ -299,10 +303,10 @@
             url: ServiceUrl + "api/Book/" + bookId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -312,6 +316,9 @@
                     $("#txtBookPrice").val(data.bookPrice);
                     $("#txtBookISBN").val(data.isbn);
                     $("#ddlAuthorName").val(data.author.authorId);
+                    $("#txtNoofPages").val(data.numberofPages);
+                    $("#txtNoofBooks").val(data.numberOfBooks);
+                    $("#txtPublishDate").val(new Date(data.publishDate).toISOString().split('T')[0]);
                     $("#btnAddBook").val("Edit");
                     $("#BookModel").modal('show');
                 } catch (e) {
@@ -340,10 +347,10 @@
             url: ServiceUrl + "api/Book/" + bookId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -372,6 +379,9 @@
         $("#txtBookTitle").val(""),
             $("#txtBookDesc").val(""),
             $("#txtBookPrice").val(""),
+            $("#txtNoofBooks").val(""),
+            $("#txtPublishDate").val(""),
+            
             $("#ddlAuthorName").prop('selectedIndex', 0),
             $("#txtBookISBN").val("")
 
@@ -382,10 +392,10 @@
             url: ServiceUrl + "api/Book/Resources",
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {

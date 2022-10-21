@@ -89,10 +89,10 @@
                 contentType: "application/json; charset=utf-8",
                 data: CountryJson,
                 beforeSend: function () {
-                    $("#loader").show();
+                    showLoader();
                 },
                 complete: function () {
-                    $("#loader").hide();
+                    hideLoader();
                 },
                 success: function (data) {
                     try {
@@ -125,10 +125,10 @@
             url: ServiceUrl + "api/Country",
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -170,10 +170,10 @@
             url: ServiceUrl + "api/Country/" + countryId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {
@@ -204,10 +204,10 @@
             url: ServiceUrl + "api/Country/" + countryId,
             data: "{}",
             beforeSend: function () {
-                $("#loader").show();
+                showLoader();
             },
             complete: function () {
-                $("#loader").hide();
+                hideLoader();
             },
             success: function (data) {
                 try {

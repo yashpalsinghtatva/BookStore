@@ -49,7 +49,13 @@ namespace OnlineBookStoreAPI.Repository
             //    Author = x.Author
             //}).ToListAsync();
             var books = await _dbContext.Books.Include(x=>x.Author).Include(x => x.Language).Include(x => x.Publisher).ToListAsync();
+            return _mapper.Map<List<BookDTO>>(books);
 
+        }
+
+        public async Task<List<BookDTO>> GetAllSearchedBookAsync(string bookName,int languageId)
+        {
+            var books = await _dbContext.Books.Where(x =>  languageId > 0? x.LanguageId == languageId : true==true).Where(x=> bookName != null ? x.BookTitle.Contains(bookName): true == true).Include(x => x.Author).Include(x => x.Language).Include(x => x.Publisher).ToListAsync();
             return _mapper.Map<List<BookDTO>>(books);
 
         }
