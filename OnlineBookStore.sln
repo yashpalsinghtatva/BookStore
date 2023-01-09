@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineBookStoreAPI", "Onlin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStoreUI", "BookStoreUI\BookStoreUI.csproj", "{C0A5810C-6648-4DC0-BB31-30B2B1CF1C18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineBookStoreUserSide", "OnlineBookStoreUserSide\OnlineBookStoreUserSide.csproj", "{BF2D8BE7-95C7-4693-9277-B768299F7822}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineBookStoreUserSide", "OnlineBookStoreUserSide\OnlineBookStoreUserSide.csproj", "{BF2D8BE7-95C7-4693-9277-B768299F7822}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreTest", "BookStoreTest\BookStoreTest.csproj", "{F91D8D0D-3D59-4055-8981-A0D3E902FEEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{BF2D8BE7-95C7-4693-9277-B768299F7822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF2D8BE7-95C7-4693-9277-B768299F7822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF2D8BE7-95C7-4693-9277-B768299F7822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F91D8D0D-3D59-4055-8981-A0D3E902FEEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F91D8D0D-3D59-4055-8981-A0D3E902FEEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F91D8D0D-3D59-4055-8981-A0D3E902FEEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F91D8D0D-3D59-4055-8981-A0D3E902FEEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

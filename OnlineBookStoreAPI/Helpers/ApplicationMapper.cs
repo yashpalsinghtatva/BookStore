@@ -25,6 +25,7 @@ namespace OnlineBookStoreAPI.Helpers
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<OrderBook, OrderBookDTO>().ReverseMap();
             CreateMap<Cart, CartDTO>().ReverseMap();
+            CreateMap<CartItem, CartItemDTO>().ReverseMap();
         }
     }
 }

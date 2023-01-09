@@ -534,9 +534,9 @@
                                 <button class="btn-theme btn buy-btn" onclick="OpenPaymentTab()" tabindex="0">
                                     <i class="fa fa-shopping-cart"></i> Buy Now
                                 </button>
-                                @*<button class="btn-theme btn btn-success" tabindex="0">
-                                        <i class="fa fa-shopping-cart"></i> Add to Cart
-                                    </button>*@
+                                <button class="btn-theme btn btn-success" onclick="addToCart();" tabindex="0">
+                                    <i class="fa fa-shopping-cart"></i> Add to Cart
+                                </button>
 
                             </div>
                         </div>
@@ -601,7 +601,7 @@
                         <div class="row mt-2">
                             <div class="col-md-6">
                                 <div class="inputbox mt-3 mr-2">
-                                    <select id="ddlCountries" class="form-control"> </select> 
+                                    <select id="ddlCountries" class="form-control"> </select>
                                 </div>
                                 <span id="spnCountry" class="form-label text-danger" style="display:none;"></span>
 
@@ -748,7 +748,6 @@
             },
             success: function (data) {
                 try {
-                    debugger;
                     $("#spnBookName").text(data.book.bookTitle);
                     $("#spnBookDesc").text(data.book.bookDescription);
                     $("#spnBookPrice").text(data.book.bookPrice);
@@ -759,7 +758,7 @@
 
                     let option = "";
                     for (let i = 0; i < data.countries.length; i++) {
-                        option += '<option value="' + data.countries[i].countryId + '">' + data.countries[i].countryName+ '</option>';
+                        option += '<option value="' + data.countries[i].countryId + '">' + data.countries[i].countryName + '</option>';
                     }
                     $("#ddlCountries").html(option);
 
@@ -915,5 +914,59 @@
             return false;
         else
             return true;
+    }
+
+    function addToCart() {
+        var boughtQuantity = parseInt($('input#txtBookQuantity').val(), 10);
+        if (boughtQuantity <= 0) {
+            alertify.error("Quantity cannot be less than 1");
+            return false;
+        }
+      
+        let price = parseInt($("#spnBookPrice").text());
+        let total = boughtQuantity * price;
+        let CartItem = {
+            "AddedDate": new Date(),
+            "BookQuanitity": boughtQuantity,
+            "BookPrice": price,
+            "BookTotal": total,
+            "BookId": parseInt(BookId),
+        };
+        var CartItemJson = JSON.stringify(CartItem);
+
+        $.ajax({
+            type: "POST",
+            url: ServiceUrl + "api/Cart",
+            data: CartItemJson,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function () {
+                $("#loader").show();
+            },
+            complete: function () {
+                $("#loader").hide();
+            },
+            success: function (data) {
+                try {
+                    alertify.success("Item Added to Cart");
+
+                } catch (e) {
+                    alertify.error("Error in Adding item to Cart");
+                    //alert("Error in Getting Book Details" + e.message);
+                }
+            },
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            error: function (request, status, errorThrown) {
+                if (request.statusCode == 401) {
+                    RedirectToLogin();
+                }
+                alertify.error("Error in getting current Book");
+                //alert("Error in getting current Book");
+            }
+
+        });
+
     }
 </script>

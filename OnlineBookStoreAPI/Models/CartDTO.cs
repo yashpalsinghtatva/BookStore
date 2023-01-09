@@ -12,8 +12,7 @@ namespace OnlineBookStoreAPI.Models
         public int UserId { get; set; }
         public DateTime CartDate { get; set; }
         public bool IsCartActive { get; set; }
-      
         public decimal CartTotal { get; set; }
-        //public List<CartItem> CartItems { get; set; }
+        public List<CartItemDTO> CartItems { get; set; }
     }
 }

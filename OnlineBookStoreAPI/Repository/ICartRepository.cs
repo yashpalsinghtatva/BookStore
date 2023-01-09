@@ -8,8 +8,8 @@ namespace OnlineBookStoreAPI.Repository
 {
     public interface ICartRepository
     {
-        Task<List<CartDTO>> GetAllCartBooksByUserIdAsync(int UserId);
-        Task<int> AddBookToCartAsync(CartDTO cart);
+        Task<CartDTO> GetAllCartBooksByUserIdAsync(int UserId);
+        Task<int> AddBookToCartAsync(int userId, CartItemDTO cartItemDTO);
        
     }
 }
